@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bathroom Flip Clock</title>
+    <title>Bathroom Flip Clock V2</title>
     <style>
         :root {
             --bg-color: #000;
-            --card-bg: #1a1a1a; /* 더 깊은 블랙 계열 */
+            --card-bg: #1a1a1a;
             --text-color: #ffffff;
             --sub-text: #888;
-            --accent-color: #ffeb3b; /* 온도 강조색 */
+            --accent-color: #ffeb3b;
         }
 
         body {
@@ -26,30 +26,37 @@
             overflow: hidden;
         }
 
-        /* 상단 정보 바 (날짜 + 날씨 한 줄) */
+        /* 상단 레이아웃: 날짜는 중앙, 날씨는 우측 */
         .info-bar {
+            position: relative;
             display: flex;
-            align-items: baseline;
-            gap: 20px;
+            justify-content: center; /* 날짜를 중앙으로 */
+            align-items: center;
+            width: 90vw; /* 전체 너비 설정 */
             margin-bottom: 3rem;
         }
 
         #date {
-            font-size: 2.2rem;
-            font-weight: 500;
-            color: var(--sub-text);
+            font-size: 2.7rem; /* 기존 2.2rem에서 약 20% 키움 */
+            font-weight: 700;
+            color: var(--text-color); /* 날짜를 더 밝게 강조 */
+            letter-spacing: -1px;
         }
 
         #weather {
-            font-size: 1.6rem; /* 날짜보다 작게 */
+            position: absolute;
+            right: 0; /* 우측 끝으로 이동 */
+            font-size: 1.5rem;
             color: var(--sub-text);
             display: flex;
-            gap: 10px;
+            flex-direction: column; /* 온도와 설명을 세로로 쌓음 (깔끔함) */
+            align-items: flex-end;
+            line-height: 1.2;
         }
 
-        .temp { color: var(--accent-color); font-weight: bold; }
+        .temp { color: var(--accent-color); font-weight: bold; font-size: 1.8rem; }
 
-        /* 플립 시계 컨테이너 */
+        /* 플립 시계 스타일 */
         .flip-clock {
             display: flex;
             gap: 12px;
@@ -74,7 +81,6 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.8);
         }
 
-        /* 플립 구분선 */
         .card::after {
             content: '';
             position: absolute;
@@ -93,7 +99,6 @@
             padding-bottom: 2vw;
         }
 
-        /* 숫자 변경 시 살짝 흔들리는 효과 */
         @keyframes flipDown {
             0% { transform: translateY(0); }
             50% { transform: translateY(5px); }
@@ -101,16 +106,17 @@
         }
         .animate { animation: flipDown 0.2s ease-out; }
 
-        /* 화면 보호기용 미세 무빙 */
+        /* 번인 방지 */
         @keyframes drift {
             0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-15px, 10px); }
+            50% { transform: translate(-10px, 10px); }
         }
         .main-container { 
-            animation: drift 40s infinite alternate ease-in-out; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
+            animation: drift 50s infinite alternate ease-in-out;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
     </style>
 </head>
@@ -118,7 +124,8 @@
 
     <div class="main-container">
         <div class="info-bar">
-            <div id="date">0000. 00. 00. 요일</div>
+            <div id="date">0000. 00. 00 (요일)</div>
+            
             <div id="weather">
                 <span class="temp" id="temp">--°C</span>
                 <span id="desc">날씨 로딩중</span>
@@ -147,14 +154,12 @@
         function updateClock() {
             const now = new Date();
             
-            // 날짜 업데이트
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const date = String(now.getDate()).padStart(2, '0');
             const days = ["일", "월", "화", "수", "목", "금", "토"];
             document.getElementById('date').innerText = `${year}.${month}.${date} (${days[now.getDay()]})`;
 
-            // 시간 업데이트
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
@@ -199,6 +204,7 @@
     </script>
 </body>
 </html>
+
 
 
 
