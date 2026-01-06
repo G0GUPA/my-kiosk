@@ -3,69 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bathroom Kiosk</title>
+    <title>Flip Clock Kiosk</title>
     <style>
+        :root {
+            --bg-color: #000;
+            --card-bg: #222;
+            --text-color: #eee;
+            --accent-color: #ffeb3b;
+        }
+
         body {
             margin: 0;
-            padding: 0;
-            background-color: black;
-            color: white;
-            font-family: 'Pretendard', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', -apple-system, sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
         }
 
-        .container {
+        /* 날짜 & 날씨 상단 바 */
+        .info-bar {
+            margin-bottom: 2rem;
             text-align: center;
-            width: 100%;
         }
+        #date { font-size: 2.5rem; color: #888; margin-bottom: 10px; }
+        #weather { font-size: 2.5rem; color: var(--accent-color); font-weight: bold; }
 
-        #date {
-            font-size: 2.5rem; /* 날짜 크기 */
-            color: #aaa;
-            margin-bottom: 0.5rem;
-        }
-
-        /* 초 단위까지 포함하므로 폰트 크기를 12vw로 살짝 조정 (가로 꽉 차게) */
-        #clock {
-            font-size: 12vw; 
-            font-weight: 900;
-            line-height: 1;
-            margin-bottom: 1.5rem;
-            letter-spacing: -1px;
-            font-variant-numeric: tabular-nums; /* 숫자 폭을 일정하게 고정해서 안 흔들리게 함 */
-        }
-
-        #weather {
-            font-size: 3.5rem;
+        /* 플립 시계 컨테이너 */
+        .flip-clock {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 25px;
+            gap: 15px;
         }
 
-        .temp { font-weight: bold; color: #ffeb3b; }
-        .desc { color: #81d4fa; }
-
-        /* 번인 방지용 미세 무빙 */
-        @keyframes shift {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-10px, 5px); }
+        .flip-unit {
+            display: flex;
+            gap: 5px;
         }
-        .container { animation: shift 30s infinite alternate linear; }
+
+        .card {
+            position: relative;
+            width: 12vw; /* 화면 크기에 맞게 조절 */
+            height: 18vw;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            font-size: 14vw;
+            font-weight: 900;
+            line-height: 18vw;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        /* 카드 중간 가로줄 (플립 느낌) */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(0,0,0,0.6);
+            z-index: 5;
+        }
+
+        /* 숫자 변경 애니메이션 */
+        @keyframes flipDown {
+            0% { transform: rotateX(0); }
+            100% { transform: rotateX(-20deg); } /* 살짝 굽혀지는 효과 */
+        }
+        .animate { animation: flipDown 0.3s ease-in; }
+
+        /* 구분 점 (:) */
+        .separator {
+            font-size: 10vw;
+            line-height: 18vw;
+            color: #444;
+        }
+
+        /* 번인 방지 미세 움직임 */
+        @keyframes drift {
+            0%, 100% { transform: translate(0,0); }
+            50% { transform: translate(-5px, 5px); }
+        }
+        .main-container { animation: drift 60s infinite alternate linear; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div id="date">0000년 00월 00일 요일</div>
-        <div id="clock">00:00:00</div>
-        <div id="weather">
-            <span class="temp">--°C</span>
-            <span class="desc">...</span>
+    <div class="main-container">
+        <div class="info-bar">
+            <div id="date">0000. 00. 00. 월요일</div>
+            <div id="weather"><span id="temp">--°C</span> | <span id="desc">날씨 로딩중</span></div>
+        </div>
+
+        <div class="flip-clock">
+            <div class="flip-unit">
+                <div class="card" id="h1">0</div>
+                <div class="card" id="h2">0</div>
+            </div>
+            <div class="separator">:</div>
+            <div class="flip-unit">
+                <div class="card" id="m1">0</div>
+                <div class="card" id="m2">0</div>
+            </div>
+            <div class="separator">:</div>
+            <div class="flip-unit">
+                <div class="card" id="s1">0</div>
+                <div class="card" id="s2">0</div>
+            </div>
         </div>
     </div>
 
@@ -77,15 +125,31 @@
             const year = now.getFullYear();
             const month = now.getMonth() + 1;
             const date = now.getDate();
-            const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
-            const day = dayNames[now.getDay()];
-            document.getElementById('date').innerText = `${year}년 ${month}월 ${date}일 (${day})`;
+            const days = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+            document.getElementById('date').innerText = `${year}. ${month}. ${date}. ${days[now.getDay()]}`;
 
-            // 시간 업데이트 (초 포함)
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('clock').innerText = `${hours}:${minutes}:${seconds}`;
+            // 시간 데이터 추출
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+
+            updateDigit('h1', h[0]);
+            updateDigit('h2', h[1]);
+            updateDigit('m1', m[0]);
+            updateDigit('m2', m[1]);
+            updateDigit('s1', s[0]);
+            updateDigit('s2', s[1]);
+        }
+
+        // 숫자가 바뀔 때만 애니메이션 효과 적용
+        function updateDigit(id, newValue) {
+            const el = document.getElementById(id);
+            if (el.innerText !== newValue) {
+                el.innerText = newValue;
+                el.classList.remove('animate');
+                void el.offsetWidth; // 리플로우 강제 발생 (애니메이션 재시작)
+                el.classList.add('animate');
+            }
         }
         
         async function getWeather() {
@@ -110,6 +174,7 @@
     </script>
 </body>
 </html>
+
 
 
 
