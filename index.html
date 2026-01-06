@@ -5,72 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bathroom Kiosk</title>
     <style>
-        /* 배경 및 기본 스타일 */
         body {
             margin: 0;
             padding: 0;
-            background-color: black; /* 배터리 절약 및 번인 방지 */
+            background-color: black;
             color: white;
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-family: 'Pretendard', sans-serif;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* 날짜 스타일 */
+        .container {
+            text-align: center;
+            width: 100%;
+        }
+
+        /* 날짜: 가독성을 위해 크기 키움 */
         #date {
-            font-size: 1.5rem;
-            color: #aaa;
-            margin-bottom: 10px;
+            font-size: 3rem; /* 기존 1.5rem -> 3rem */
+            color: #bbb;
+            margin-bottom: 1rem;
         }
 
-        /* 시계 스타일 */
+        /* 시계: 화면의 주인공이므로 아주 크게 설정 */
         #clock {
-            font-size: 5rem;
-            font-weight: bold;
-            margin-bottom: 20px;
+            font-size: 15vw; /* 화면 너비에 맞춰 유동적으로 커짐 (매우 큼) */
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 2rem;
+            letter-spacing: -2px;
         }
 
-        /* 날씨 스타일 */
+        /* 날씨: 한눈에 들어오도록 강조 */
         #weather {
-            font-size: 1.8rem;
+            font-size: 4rem; /* 기존 1.8rem -> 4rem */
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 15px;
+            gap: 30px;
         }
 
         .temp { font-weight: bold; color: #ffeb3b; }
         .desc { color: #81d4fa; }
 
-        /* 화면 보호를 위한 미세한 움직임 애니메이션 (선택사항) */
-        @keyframes float {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-            100% { transform: translateY(0); }
+        /* 번인 방지 미세 애니메이션 */
+        @keyframes shift {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(5px, 5px); }
+            50% { transform: translate(-5px, 10px); }
+            75% { transform: translate(-10px, -5px); }
         }
-        .container { animation: float 10s infinite ease-in-out; text-align: center; }
+        .container { animation: shift 60s infinite linear; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div id="date">0000년 00월 00일 요일</div>
-        <div id="clock">00:00:00</div>
+        <div id="clock">00:00</div>
         <div id="weather">
             <span class="temp">--°C</span>
-            <span class="desc">날씨 불러오는 중...</span>
+            <span class="desc">...</span>
         </div>
     </div>
 
     <script>
-        // 1. 시계 및 날짜 업데이트 함수
         function updateClock() {
             const now = new Date();
-            
-            // 날짜 형식
             const year = now.getFullYear();
             const month = now.getMonth() + 1;
             const date = now.getDate();
@@ -79,40 +83,29 @@
             
             document.getElementById('date').innerText = `${year}년 ${month}월 ${date}일 (${day})`;
 
-            // 시간 형식
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            
-            document.getElementById('clock').innerText = `${hours}:${minutes}:${seconds}`;
+            // 초 단위는 너무 산만할 수 있어 뺐지만, 필요하면 :${seconds}를 추가하세요.
+            document.getElementById('clock').innerText = `${hours}:${minutes}`;
         }
 
-        // 2. 날씨 정보 가져오기 (OpenWeatherMap API 사용)
         async function getWeather() {
-            const API_KEY = '8e4cc27695f9ae10ebc4cee6f68d8947'; // 여기에 본인의 API 키를 넣으세요
-            const CITY = 'incheon'; // 원하는 도시명 (영문)
+            const API_KEY = 'YOUR_API_KEY_HERE'; // 꼭 본인의 키를 넣으세요!
+            const CITY = 'Seoul'; 
             const url = `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${API_KEY}&units=metric&lang=kr`;
 
             try {
                 const response = await fetch(url);
                 const data = await response.json();
-                
-                const temp = Math.round(data.main.temp);
-                const desc = data.weather[0].description;
-                
-                document.querySelector('.temp').innerText = `${temp}°C`;
-                document.querySelector('.desc').innerText = desc;
-            } catch (error) {
-                console.error("날씨 정보 호출 실패", error);
-                document.querySelector('.desc').innerText = "날씨 정보 연결 불가";
+                document.querySelector('.temp').innerText = `${Math.round(data.main.temp)}°C`;
+                document.querySelector('.desc').innerText = data.weather[0].description;
+            } catch (e) {
+                document.querySelector('.desc').innerText = "연결 오류";
             }
         }
 
-        // 실행
         setInterval(updateClock, 1000);
         updateClock();
-
-        // 날씨는 30분마다 업데이트
         getWeather();
         setInterval(getWeather, 1800000); 
     </script>
