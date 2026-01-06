@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bathroom Flip Clock V2</title>
+    <title>Bathroom Flip Clock V3 with Icons</title>
     <style>
         :root {
             --bg-color: #000;
             --card-bg: #1a1a1a;
             --text-color: #ffffff;
-            --sub-text: #888;
+            --sub-text: #aaa; /* 조금 더 밝게 조정 */
             --accent-color: #ffeb3b;
         }
 
@@ -26,97 +26,109 @@
             overflow: hidden;
         }
 
-        /* 상단 레이아웃: 날짜는 중앙, 날씨는 우측 */
+        /* 상단 레이아웃 */
         .info-bar {
             position: relative;
             display: flex;
-            justify-content: center; /* 날짜를 중앙으로 */
+            justify-content: center;
             align-items: center;
-            width: 90vw; /* 전체 너비 설정 */
-            margin-bottom: 3rem;
+            width: 92vw;
+            margin-bottom: 2.5rem;
         }
 
+        /* 날짜: 중앙 크게 */
         #date {
-            font-size: 2.7rem; /* 기존 2.2rem에서 약 20% 키움 */
+            font-size: 2.8rem;
             font-weight: 700;
-            color: var(--text-color); /* 날짜를 더 밝게 강조 */
+            color: var(--text-color);
             letter-spacing: -1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
-        #weather {
+        /* 날씨 영역: 우측 정렬 (아이콘 + 텍스트 그룹) */
+        #weather-container {
             position: absolute;
-            right: 0; /* 우측 끝으로 이동 */
-            font-size: 1.5rem;
-            color: var(--sub-text);
+            right: 0;
             display: flex;
-            flex-direction: column; /* 온도와 설명을 세로로 쌓음 (깔끔함) */
-            align-items: flex-end;
-            line-height: 1.2;
+            align-items: center;
+            gap: 5px; /* 아이콘과 텍스트 사이 간격 */
         }
 
-        .temp { color: var(--accent-color); font-weight: bold; font-size: 1.8rem; }
+        /* 날씨 아이콘 */
+        #weather-icon {
+            width: 60px;
+            height: 60px;
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.5));
+            display: none; /* 로딩 전에는 숨김 */
+        }
 
-        /* 플립 시계 스타일 */
+        /* 날씨 텍스트 그룹 (온도+설명) 세로 정렬 */
+        .weather-text-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .temp { 
+            color: var(--accent-color); 
+            font-weight: bold; 
+            font-size: 1.8rem; 
+            line-height: 1.1;
+        }
+        
+        #desc {
+            font-size: 1rem;
+            color: var(--sub-text);
+            white-space: nowrap; /* 줄바꿈 방지 */
+        }
+
+        /* 플립 시계 스타일 (기존 동일) */
         .flip-clock {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
         }
 
-        .flip-unit {
-            display: flex;
-            gap: 4px;
-        }
+        .flip-unit { display: flex; gap: 3px; }
 
         .card {
             position: relative;
             width: 13vw;
             height: 20vw;
             background-color: var(--card-bg);
-            border-radius: 12px;
+            border-radius: 10px;
             font-size: 16vw;
             font-weight: 900;
             line-height: 20vw;
             text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
         }
 
         .card::after {
             content: '';
             position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 1.5px;
-            background: rgba(0,0,0,0.7);
-            z-index: 5;
+            top: 50%; left: 0; width: 100%; height: 2px;
+            background: rgba(0,0,0,0.5); z-index: 5;
         }
 
         .separator {
-            font-size: 8vw;
-            color: #333;
-            font-weight: bold;
-            padding-bottom: 2vw;
+            font-size: 8vw; color: #444; font-weight: bold; padding-bottom: 2vw;
         }
 
         @keyframes flipDown {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(5px); }
-            100% { transform: translateY(0); }
+            0% { transform: translateY(0); opacity: 0.8; }
+            100% { transform: translateY(0); opacity: 1; }
         }
-        .animate { animation: flipDown 0.2s ease-out; }
+        .animate { animation: flipDown 0.3s ease-out; }
 
         /* 번인 방지 */
         @keyframes drift {
             0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-10px, 10px); }
+            50% { transform: translate(-8px, 8px); }
         }
         .main-container { 
-            animation: drift 50s infinite alternate ease-in-out;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            animation: drift 60s infinite alternate ease-in-out;
+            width: 100%; display: flex; flex-direction: column; align-items: center;
         }
     </style>
 </head>
@@ -124,36 +136,36 @@
 
     <div class="main-container">
         <div class="info-bar">
-            <div id="date">0000. 00. 00 (요일)</div>
+            <div id="date">Loading...</div>
             
-            <div id="weather">
-                <span class="temp" id="temp">--°C</span>
-                <span id="desc">날씨 로딩중</span>
+            <div id="weather-container">
+                <img id="weather-icon" src="" alt="날씨 아이콘">
+                <div class="weather-text-group">
+                    <span class="temp" id="temp"></span>
+                    <span id="desc">...</span>
+                </div>
             </div>
         </div>
 
         <div class="flip-clock">
             <div class="flip-unit">
-                <div class="card" id="h1">0</div>
-                <div class="card" id="h2">0</div>
+                <div class="card" id="h1">0</div><div class="card" id="h2">0</div>
             </div>
             <div class="separator">:</div>
             <div class="flip-unit">
-                <div class="card" id="m1">0</div>
-                <div class="card" id="m2">0</div>
+                <div class="card" id="m1">0</div><div class="card" id="m2">0</div>
             </div>
             <div class="separator">:</div>
             <div class="flip-unit">
-                <div class="card" id="s1">0</div>
-                <div class="card" id="s2">0</div>
+                <div class="card" id="s1">0</div><div class="card" id="s2">0</div>
             </div>
         </div>
     </div>
 
     <script>
+        // 시계 업데이트
         function updateClock() {
             const now = new Date();
-            
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const date = String(now.getDate()).padStart(2, '0');
@@ -164,12 +176,9 @@
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
 
-            updateDigit('h1', h[0]);
-            updateDigit('h2', h[1]);
-            updateDigit('m1', m[0]);
-            updateDigit('m2', m[1]);
-            updateDigit('s1', s[0]);
-            updateDigit('s2', s[1]);
+            updateDigit('h1', h[0]); updateDigit('h2', h[1]);
+            updateDigit('m1', m[0]); updateDigit('m2', m[1]);
+            updateDigit('s1', s[0]); updateDigit('s2', s[1]);
         }
 
         function updateDigit(id, newValue) {
@@ -181,32 +190,46 @@
                 el.classList.add('animate');
             }
         }
-        
-        async function getWeather() {
-            const API_KEY = '8e4cc27695f9ae10ebc4cee6f68d8947'; // 꼭 본인의 키를 넣으세요!
-            const CITY = 'incheon'; 
-            const url = `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${API_KEY}&units=metric&lang=kr`;
 
+        // 날씨 정보 가져오기 (아이콘 포함)
+        async function getWeather() {
+            const API_KEY = '8e4cc27695f9ae10ebc4cee6f68d8947'; // ★여기에 본인 API 키를 꼭 넣어주세요★
+            const CITY = 'incheon'; // 원하는 도시명 (예: Busan, Incheon)
+            
             try {
-                const response = await fetch(url);
-                const data = await response.json();
-                document.querySelector('.temp').innerText = `${Math.round(data.main.temp)}°C`;
-                document.querySelector('.desc').innerText = data.weather[0].description;
+                const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${API_KEY}&units=metric&lang=kr`);
+                
+                if (!res.ok) throw new Error('날씨 정보 호출 실패');
+
+                const data = await res.json();
+
+                // 1. 텍스트 업데이트
+                document.getElementById('temp').innerText = `${Math.round(data.main.temp)}°C`;
+                const description = data.weather[0].description;
+                document.getElementById('desc').innerText = description;
+
+                // 2. 아이콘 업데이트
+                const iconCode = data.weather[0].icon; // 아이콘 코드 추출 (예: 01d)
+                const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`; // 고화질 아이콘 URL
+                const iconImg = document.getElementById('weather-icon');
+                iconImg.src = iconUrl;
+                iconImg.style.display = 'block'; // 이미지가 로드되면 보이게 설정
+                iconImg.alt = description;
+
             } catch (e) {
-                document.querySelector('.desc').innerText = "연결 오류";
+                console.error(e);
+                document.getElementById('temp').innerText = "--";
+                document.getElementById('desc').innerText = "정보 없음";
+                document.getElementById('weather-icon').style.display = 'none'; // 에러 시 아이콘 숨김
             }
         }
 
         setInterval(updateClock, 1000);
         updateClock();
-        getWeather();
+        
+        // 날씨는 시작 직후 한번 실행하고, 그 뒤로 30분마다 갱신
+        getWeather(); 
         setInterval(getWeather, 1800000); 
     </script>
 </body>
 </html>
-
-
-
-
-
-
