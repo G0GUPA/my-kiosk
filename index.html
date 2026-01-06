@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flip Clock Kiosk</title>
+    <title>Bathroom Flip Clock</title>
     <style>
         :root {
             --bg-color: #000;
-            --card-bg: #222;
-            --text-color: #eee;
-            --accent-color: #ffeb3b;
+            --card-bg: #1a1a1a; /* 더 깊은 블랙 계열 */
+            --text-color: #ffffff;
+            --sub-text: #888;
+            --accent-color: #ffeb3b; /* 온도 강조색 */
         }
 
         body {
             margin: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Pretendard', -apple-system, sans-serif;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -25,78 +26,103 @@
             overflow: hidden;
         }
 
-        /* 날짜 & 날씨 상단 바 */
+        /* 상단 정보 바 (날짜 + 날씨 한 줄) */
         .info-bar {
-            margin-bottom: 2rem;
-            text-align: center;
+            display: flex;
+            align-items: baseline;
+            gap: 20px;
+            margin-bottom: 3rem;
         }
-        #date { font-size: 2.5rem; color: #888; margin-bottom: 10px; }
-        #weather { font-size: 2.5rem; color: var(--accent-color); font-weight: bold; }
+
+        #date {
+            font-size: 2.2rem;
+            font-weight: 500;
+            color: var(--sub-text);
+        }
+
+        #weather {
+            font-size: 1.6rem; /* 날짜보다 작게 */
+            color: var(--sub-text);
+            display: flex;
+            gap: 10px;
+        }
+
+        .temp { color: var(--accent-color); font-weight: bold; }
 
         /* 플립 시계 컨테이너 */
         .flip-clock {
             display: flex;
-            gap: 15px;
+            gap: 12px;
+            align-items: center;
         }
 
         .flip-unit {
             display: flex;
-            gap: 5px;
+            gap: 4px;
         }
 
         .card {
             position: relative;
-            width: 12vw; /* 화면 크기에 맞게 조절 */
-            height: 18vw;
+            width: 13vw;
+            height: 20vw;
             background-color: var(--card-bg);
             border-radius: 12px;
-            font-size: 14vw;
+            font-size: 16vw;
             font-weight: 900;
-            line-height: 18vw;
+            line-height: 20vw;
             text-align: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
         }
 
-        /* 카드 중간 가로줄 (플립 느낌) */
+        /* 플립 구분선 */
         .card::after {
             content: '';
             position: absolute;
             top: 50%;
             left: 0;
             width: 100%;
-            height: 2px;
-            background: rgba(0,0,0,0.6);
+            height: 1.5px;
+            background: rgba(0,0,0,0.7);
             z-index: 5;
         }
 
-        /* 숫자 변경 애니메이션 */
-        @keyframes flipDown {
-            0% { transform: rotateX(0); }
-            100% { transform: rotateX(-20deg); } /* 살짝 굽혀지는 효과 */
-        }
-        .animate { animation: flipDown 0.3s ease-in; }
-
-        /* 구분 점 (:) */
         .separator {
-            font-size: 10vw;
-            line-height: 18vw;
-            color: #444;
+            font-size: 8vw;
+            color: #333;
+            font-weight: bold;
+            padding-bottom: 2vw;
         }
 
-        /* 번인 방지 미세 움직임 */
-        @keyframes drift {
-            0%, 100% { transform: translate(0,0); }
-            50% { transform: translate(-5px, 5px); }
+        /* 숫자 변경 시 살짝 흔들리는 효과 */
+        @keyframes flipDown {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(5px); }
+            100% { transform: translateY(0); }
         }
-        .main-container { animation: drift 60s infinite alternate linear; }
+        .animate { animation: flipDown 0.2s ease-out; }
+
+        /* 화면 보호기용 미세 무빙 */
+        @keyframes drift {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-15px, 10px); }
+        }
+        .main-container { 
+            animation: drift 40s infinite alternate ease-in-out; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
     </style>
 </head>
 <body>
 
     <div class="main-container">
         <div class="info-bar">
-            <div id="date">0000. 00. 00. 월요일</div>
-            <div id="weather"><span id="temp">--°C</span> | <span id="desc">날씨 로딩중</span></div>
+            <div id="date">0000. 00. 00. 요일</div>
+            <div id="weather">
+                <span class="temp" id="temp">--°C</span>
+                <span id="desc">날씨 로딩중</span>
+            </div>
         </div>
 
         <div class="flip-clock">
@@ -123,12 +149,12 @@
             
             // 날짜 업데이트
             const year = now.getFullYear();
-            const month = now.getMonth() + 1;
-            const date = now.getDate();
-            const days = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
-            document.getElementById('date').innerText = `${year}. ${month}. ${date}. ${days[now.getDay()]}`;
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const date = String(now.getDate()).padStart(2, '0');
+            const days = ["일", "월", "화", "수", "목", "금", "토"];
+            document.getElementById('date').innerText = `${year}.${month}.${date} (${days[now.getDay()]})`;
 
-            // 시간 데이터 추출
+            // 시간 업데이트
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
@@ -141,13 +167,12 @@
             updateDigit('s2', s[1]);
         }
 
-        // 숫자가 바뀔 때만 애니메이션 효과 적용
         function updateDigit(id, newValue) {
             const el = document.getElementById(id);
             if (el.innerText !== newValue) {
                 el.innerText = newValue;
                 el.classList.remove('animate');
-                void el.offsetWidth; // 리플로우 강제 발생 (애니메이션 재시작)
+                void el.offsetWidth;
                 el.classList.add('animate');
             }
         }
@@ -174,6 +199,7 @@
     </script>
 </body>
 </html>
+
 
 
 
