@@ -10,7 +10,7 @@
             padding: 0;
             background-color: black;
             color: white;
-            font-family: 'Pretendard', sans-serif;
+            font-family: 'Pretendard', -apple-system, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,49 +23,46 @@
             width: 100%;
         }
 
-        /* 날짜: 가독성을 위해 크기 키움 */
         #date {
-            font-size: 3rem; /* 기존 1.5rem -> 3rem */
-            color: #bbb;
-            margin-bottom: 1rem;
+            font-size: 2.5rem; /* 날짜 크기 */
+            color: #aaa;
+            margin-bottom: 0.5rem;
         }
 
-        /* 시계: 화면의 주인공이므로 아주 크게 설정 */
+        /* 초 단위까지 포함하므로 폰트 크기를 12vw로 살짝 조정 (가로 꽉 차게) */
         #clock {
-            font-size: 15vw; /* 화면 너비에 맞춰 유동적으로 커짐 (매우 큼) */
+            font-size: 12vw; 
             font-weight: 900;
             line-height: 1;
-            margin-bottom: 2rem;
-            letter-spacing: -2px;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums; /* 숫자 폭을 일정하게 고정해서 안 흔들리게 함 */
         }
 
-        /* 날씨: 한눈에 들어오도록 강조 */
         #weather {
-            font-size: 4rem; /* 기존 1.8rem -> 4rem */
+            font-size: 3.5rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 30px;
+            gap: 25px;
         }
 
         .temp { font-weight: bold; color: #ffeb3b; }
         .desc { color: #81d4fa; }
 
-        /* 번인 방지 미세 애니메이션 */
+        /* 번인 방지용 미세 무빙 */
         @keyframes shift {
             0%, 100% { transform: translate(0, 0); }
-            25% { transform: translate(5px, 5px); }
-            50% { transform: translate(-5px, 10px); }
-            75% { transform: translate(-10px, -5px); }
+            50% { transform: translate(-10px, 5px); }
         }
-        .container { animation: shift 60s infinite linear; }
+        .container { animation: shift 30s infinite alternate linear; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div id="date">0000년 00월 00일 요일</div>
-        <div id="clock">00:00</div>
+        <div id="clock">00:00:00</div>
         <div id="weather">
             <span class="temp">--°C</span>
             <span class="desc">...</span>
@@ -75,20 +72,22 @@
     <script>
         function updateClock() {
             const now = new Date();
+            
+            // 날짜 업데이트
             const year = now.getFullYear();
             const month = now.getMonth() + 1;
             const date = now.getDate();
             const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
             const day = dayNames[now.getDay()];
-            
             document.getElementById('date').innerText = `${year}년 ${month}월 ${date}일 (${day})`;
 
+            // 시간 업데이트 (초 포함)
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            // 초 단위는 너무 산만할 수 있어 뺐지만, 필요하면 :${seconds}를 추가하세요.
-            document.getElementById('clock').innerText = `${hours}:${minutes}`;
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').innerText = `${hours}:${minutes}:${seconds}`;
         }
-
+        
         async function getWeather() {
             const API_KEY = '8e4cc27695f9ae10ebc4cee6f68d8947'; // 꼭 본인의 키를 넣으세요!
             const CITY = 'incheon'; 
@@ -111,5 +110,6 @@
     </script>
 </body>
 </html>
+
 
 
