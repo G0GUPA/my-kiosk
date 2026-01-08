@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bathroom Flip Clock V3 with Icons</title>
+    <title>Bathroom Flip Clock V4</title>
     <style>
         :root {
             --bg-color: #000;
             --card-bg: #1a1a1a;
             --text-color: #ffffff;
-            --sub-text: #aaa; /* 조금 더 밝게 조정 */
+            --sub-text: #aaa;
             --accent-color: #ffeb3b;
         }
 
@@ -20,115 +20,99 @@
             font-family: 'Pretendard', -apple-system, sans-serif;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* 상단 레이아웃 */
+        /* 메인 컨테이너: 전체를 감싸서 아래로 살짝 밀어줌 */
+        .main-container { 
+            width: 100%;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            padding-top: 5vh; /* 상단 여백 조절 */
+            animation: drift 60s infinite alternate ease-in-out;
+        }
+
+        /* 상단 레이아웃 (날짜/날씨) */
         .info-bar {
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 92vw;
-            margin-bottom: 2.5rem;
+            width: 94vw;
+            margin-bottom: 2vh; /* 시계와 간격 조절 */
         }
 
-        /* 날짜: 중앙 크게 */
+        /* 날짜: 년도 제거하고 큼직하게 */
         #date {
-            font-size: 4.0rem;
-            font-weight: 700;
+            font-size: 3.2rem; /* 더 키움 */
+            font-weight: 800;
             color: var(--text-color);
-            letter-spacing: -1px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: -1.5px;
         }
 
-        /* 날씨 영역: 우측 정렬 (아이콘 + 텍스트 그룹) */
+        /* 날씨: 우측 끝 */
         #weather-container {
             position: absolute;
             right: 0;
             display: flex;
             align-items: center;
-            gap: 5px; /* 아이콘과 텍스트 사이 간격 */
         }
 
-        /* 날씨 아이콘 */
-        #weather-icon {
-            width: 60px;
-            height: 60px;
-            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.5));
-            display: none; /* 로딩 전에는 숨김 */
+        #weather-icon { width: 70px; height: 70px; display: none; }
+
+        .weather-text-group { display: flex; flex-direction: column; align-items: flex-end; }
+        .temp { color: var(--accent-color); font-weight: bold; font-size: 2rem; line-height: 1; }
+        #desc { font-size: 1.1rem; color: var(--sub-text); }
+
+        /* 플립 시계 영역: 더 크게, 더 좁게, 살짝 아래로 */
+        .flip-clock-wrapper {
+            margin-top: 2vh; /* 날짜로부터 시계를 더 아래로 내림 */
         }
 
-        /* 날씨 텍스트 그룹 (온도+설명) 세로 정렬 */
-        .weather-text-group {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-
-        .temp { 
-            color: var(--accent-color); 
-            font-weight: bold; 
-            font-size: 1.8rem; 
-            line-height: 1.1;
-        }
-        
-        #desc {
-            font-size: 1rem;
-            color: var(--sub-text);
-            white-space: nowrap; /* 줄바꿈 방지 */
-        }
-
-        /* 플립 시계 스타일 (기존 동일) */
         .flip-clock {
             display: flex;
-            gap: 10px;
+            gap: 5px; /* 시 단위 간격 좁힘 */
             align-items: center;
         }
 
-        .flip-unit { display: flex; gap: 3px; }
+        .flip-unit { display: flex; gap: 2px; } /* 숫자 간격 최소화 */
 
         .card {
             position: relative;
-            width: 13vw;
-            height: 20vw;
+            width: 15vw; /* 폭 대폭 확대 */
+            height: 23vw; /* 높이 대폭 확대 */
             background-color: var(--card-bg);
-            border-radius: 10px;
-            font-size: 16vw;
+            border-radius: 12px;
+            font-size: 19vw; /* 글자 크기 극대화 */
             font-weight: 900;
-            line-height: 20vw;
+            line-height: 23vw;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9);
         }
 
         .card::after {
             content: '';
             position: absolute;
             top: 50%; left: 0; width: 100%; height: 2px;
-            background: rgba(0,0,0,0.5); z-index: 5;
+            background: rgba(0,0,0,0.6); z-index: 5;
         }
 
         .separator {
-            font-size: 8vw; color: #444; font-weight: bold; padding-bottom: 2vw;
+            font-size: 8vw; color: #333; font-weight: bold; padding: 0 2px;
         }
 
         @keyframes flipDown {
-            0% { transform: translateY(0); opacity: 0.8; }
-            100% { transform: translateY(0); opacity: 1; }
+            0% { opacity: 0.9; }
+            100% { opacity: 1; }
         }
-        .animate { animation: flipDown 0.3s ease-out; }
+        .animate { animation: flipDown 0.2s ease-out; }
 
-        /* 번인 방지 */
         @keyframes drift {
             0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-8px, 8px); }
-        }
-        .main-container { 
-            animation: drift 60s infinite alternate ease-in-out;
-            width: 100%; display: flex; flex-direction: column; align-items: center;
+            50% { transform: translate(-10px, 15px); }
         }
     </style>
 </head>
@@ -136,41 +120,42 @@
 
     <div class="main-container">
         <div class="info-bar">
-            <div id="date">Loading...</div>
+            <div id="date">00.00 (요일)</div>
             
             <div id="weather-container">
-                <img id="weather-icon" src="" alt="날씨 아이콘">
+                <img id="weather-icon" src="" alt="">
                 <div class="weather-text-group">
-                    <span class="temp" id="temp"></span>
+                    <span class="temp" id="temp">--°C</span>
                     <span id="desc">...</span>
                 </div>
             </div>
         </div>
 
-        <div class="flip-clock">
-            <div class="flip-unit">
-                <div class="card" id="h1">0</div><div class="card" id="h2">0</div>
-            </div>
-            <div class="separator">:</div>
-            <div class="flip-unit">
-                <div class="card" id="m1">0</div><div class="card" id="m2">0</div>
-            </div>
-            <div class="separator">:</div>
-            <div class="flip-unit">
-                <div class="card" id="s1">0</div><div class="card" id="s2">0</div>
+        <div class="flip-clock-wrapper">
+            <div class="flip-clock">
+                <div class="flip-unit">
+                    <div class="card" id="h1">0</div><div class="card" id="h2">0</div>
+                </div>
+                <div class="separator">:</div>
+                <div class="flip-unit">
+                    <div class="card" id="m1">0</div><div class="card" id="m2">0</div>
+                </div>
+                <div class="separator">:</div>
+                <div class="flip-unit">
+                    <div class="card" id="s1">0</div><div class="card" id="s2">0</div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 시계 업데이트
         function updateClock() {
             const now = new Date();
-            const year = now.getFullYear();
+            // 년도 제거: 월.일 (요일)
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const date = String(now.getDate()).padStart(2, '0');
             const days = ["일", "월", "화", "수", "목", "금", "토"];
-            document.getElementById('date').innerText = `${year}.${month}.${date} (${days[now.getDay()]})`;
+            document.getElementById('date').innerText = `${month}.${date} (${days[now.getDay()]})`;
 
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
@@ -233,5 +218,6 @@
     </script>
 </body>
 </html>
+
 
 
