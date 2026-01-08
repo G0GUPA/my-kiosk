@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bathroom Flip Clock V4</title>
+    <title>Smart Bathroom Kiosk</title>
     <style>
         :root {
             --bg-color: #000;
@@ -25,35 +25,31 @@
             overflow: hidden;
         }
 
-        /* 메인 컨테이너: 전체를 감싸서 아래로 살짝 밀어줌 */
         .main-container { 
             width: 100%;
             display: flex; 
             flex-direction: column; 
             align-items: center;
-            padding-top: 5vh; /* 상단 여백 조절 */
+            padding-top: 5vh;
             animation: drift 60s infinite alternate ease-in-out;
         }
 
-        /* 상단 레이아웃 (날짜/날씨) */
         .info-bar {
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             width: 94vw;
-            margin-bottom: 2vh; /* 시계와 간격 조절 */
+            margin-bottom: 2vh;
         }
 
-        /* 날짜: 년도 제거하고 큼직하게 */
         #date {
-            font-size: 3.2rem; /* 더 키움 */
+            font-size: 3.2rem;
             font-weight: 800;
             color: var(--text-color);
             letter-spacing: -1.5px;
         }
 
-        /* 날씨: 우측 끝 */
         #weather-container {
             position: absolute;
             right: 0;
@@ -67,26 +63,17 @@
         .temp { color: var(--accent-color); font-weight: bold; font-size: 2rem; line-height: 1; }
         #desc { font-size: 1.1rem; color: var(--sub-text); }
 
-        /* 플립 시계 영역: 더 크게, 더 좁게, 살짝 아래로 */
-        .flip-clock-wrapper {
-            margin-top: 2vh; /* 날짜로부터 시계를 더 아래로 내림 */
-        }
-
-        .flip-clock {
-            display: flex;
-            gap: 5px; /* 시 단위 간격 좁힘 */
-            align-items: center;
-        }
-
-        .flip-unit { display: flex; gap: 2px; } /* 숫자 간격 최소화 */
+        .flip-clock-wrapper { margin-top: 2vh; }
+        .flip-clock { display: flex; gap: 5px; align-items: center; }
+        .flip-unit { display: flex; gap: 2px; }
 
         .card {
             position: relative;
-            width: 15vw; /* 폭 대폭 확대 */
-            height: 23vw; /* 높이 대폭 확대 */
+            width: 15vw;
+            height: 23vw;
             background-color: var(--card-bg);
             border-radius: 12px;
-            font-size: 19vw; /* 글자 크기 극대화 */
+            font-size: 19vw;
             font-weight: 900;
             line-height: 23vw;
             text-align: center;
@@ -100,14 +87,9 @@
             background: rgba(0,0,0,0.6); z-index: 5;
         }
 
-        .separator {
-            font-size: 8vw; color: #333; font-weight: bold; padding: 0 2px;
-        }
+        .separator { font-size: 8vw; color: #333; font-weight: bold; padding: 0 2px; }
 
-        @keyframes flipDown {
-            0% { opacity: 0.9; }
-            100% { opacity: 1; }
-        }
+        @keyframes flipDown { 0% { opacity: 0.9; } 100% { opacity: 1; } }
         .animate { animation: flipDown 0.2s ease-out; }
 
         @keyframes drift {
@@ -121,12 +103,11 @@
     <div class="main-container">
         <div class="info-bar">
             <div id="date">00.00 (요일)</div>
-            
             <div id="weather-container">
                 <img id="weather-icon" src="" alt="">
                 <div class="weather-text-group">
                     <span class="temp" id="temp">--°C</span>
-                    <span id="desc">...</span>
+                    <span id="desc">위치 확인중...</span>
                 </div>
             </div>
         </div>
@@ -149,9 +130,10 @@
     </div>
 
     <script>
+        const API_KEY = '8e4cc27695f9ae10ebc4cee6f68d8947';
+
         function updateClock() {
             const now = new Date();
-            // 년도 제거: 월.일 (요일)
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const date = String(now.getDate()).padStart(2, '0');
             const days = ["일", "월", "화", "수", "목", "금", "토"];
@@ -176,48 +158,54 @@
             }
         }
 
-        // 날씨 정보 가져오기 (아이콘 포함)
-        async function getWeather() {
-            const API_KEY = '8e4cc27695f9ae10ebc4cee6f68d8947'; // ★여기에 본인 API 키를 꼭 넣어주세요★
-            const CITY = 'incheon'; // 원하는 도시명 (예: Busan, Incheon)
-            
+        // 위치 정보를 가져와서 날씨 API 호출
+        function initWeather() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        getWeather(lat, lon);
+                    },
+                    () => {
+                        // 위치 권한 거부 시 서울 날씨 기본값
+                        getWeatherByCity('Seoul');
+                    }
+                );
+            } else {
+                getWeatherByCity('Seoul');
+            }
+        }
+
+        async function getWeather(lat, lon) {
+            const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=kr`;
+            fetchWeatherData(url);
+        }
+
+        async function getWeatherByCity(city) {
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=kr`;
+            fetchWeatherData(url);
+        }
+
+        async function fetchWeatherData(url) {
             try {
-                const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${API_KEY}&units=metric&lang=kr`);
-                
-                if (!res.ok) throw new Error('날씨 정보 호출 실패');
-
+                const res = await fetch(url);
                 const data = await res.json();
-
-                // 1. 텍스트 업데이트
                 document.getElementById('temp').innerText = `${Math.round(data.main.temp)}°C`;
-                const description = data.weather[0].description;
-                document.getElementById('desc').innerText = description;
-
-                // 2. 아이콘 업데이트
-                const iconCode = data.weather[0].icon; // 아이콘 코드 추출 (예: 01d)
-                const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`; // 고화질 아이콘 URL
+                document.getElementById('desc').innerText = data.weather[0].description;
+                const iconCode = data.weather[0].icon;
                 const iconImg = document.getElementById('weather-icon');
-                iconImg.src = iconUrl;
-                iconImg.style.display = 'block'; // 이미지가 로드되면 보이게 설정
-                iconImg.alt = description;
-
+                iconImg.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+                iconImg.style.display = 'block';
             } catch (e) {
-                console.error(e);
-                document.getElementById('temp').innerText = "--";
-                document.getElementById('desc').innerText = "정보 없음";
-                document.getElementById('weather-icon').style.display = 'none'; // 에러 시 아이콘 숨김
+                document.getElementById('desc').innerText = "연결 오류";
             }
         }
 
         setInterval(updateClock, 1000);
         updateClock();
-        
-        // 날씨는 시작 직후 한번 실행하고, 그 뒤로 30분마다 갱신
-        getWeather(); 
-        setInterval(getWeather, 1800000); 
+        initWeather();
+        setInterval(initWeather, 1800000); // 30분마다 위치 및 날씨 갱신
     </script>
 </body>
 </html>
-
-
-
