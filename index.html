@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Half-Size Seconds Flip Clock</title>
+    <title>70% Seconds Flip Clock</title>
     <style>
         :root {
             --bg-color: #000;
@@ -66,17 +66,15 @@
             margin-top: 6vh; 
         }
 
-        /* 시계 전체 정렬 */
         .flip-clock {
             display: flex;
             gap: 3px;
-            /* ★수정 포인트: 크기가 다른 요소들을 하단 라인에 맞춤 */
-            align-items: flex-end; 
+            align-items: flex-end; /* 하단 정렬 */
         }
 
         .flip-unit { display: flex; gap: 1px; }
 
-        /* 기본 카드 스타일 (시/분) */
+        /* 기본 카드 (시/분) */
         .card {
             position: relative;
             width: 15.5vw;
@@ -104,32 +102,32 @@
             background: rgba(0,0,0,0.8); z-index: 5;
         }
 
-        /* 기본 구분자 (시:분 사이) */
+        /* 메인 구분자 (:) */
         .separator { 
             font-size: 7vw; color: #222; font-weight: bold; padding: 0 1px; transform: scaleY(1.5); 
-            margin-bottom: 2vw; /* 하단 정렬 보정 */
+            margin-bottom: 2vw;
         }
 
-        /* ★추가된 스타일: 분:초 사이 작은 구분자 */
+        /* ★분:초 사이 구분자 (70% 수준으로 조정) */
         .separator.small {
-             font-size: 4vw; /* 크기 축소 */
-             color: #444; /* 약간 더 어둡게 */
-             margin-bottom: 1.5vw; /* 위치 미세 조정 */
+             font-size: 5vw; 
+             color: #333;
+             margin-bottom: 2vw;
         }
 
-        /* ★추가된 스타일: 초 단위 카드 작게 만들기 */
+        /* ★초 단위 카드 (기존 크기의 70%로 확대) */
         .seconds-unit .card {
-             width: 8vw;   /* 기존 15.5vw의 약 절반 */
-             height: 14vw;  /* 기존 28vw의 절반 */
-             font-size: 12vw; /* 폰트 크기 절반 */
-             line-height: 14vw;
-             border-radius: 4px;
-        }
-        /* 작은 카드 내부 텍스트 위치 보정 */
-        .seconds-unit .card span {
-             margin-top: -0.5vw;
+             width: 11vw;    /* 15.5vw * 0.7 */
+             height: 19.6vw; /* 28vw * 0.7 */
+             font-size: 16.8vw; /* 24vw * 0.7 */
+             line-height: 19.6vw;
+             border-radius: 5px;
         }
 
+        /* 작은 카드 내부 텍스트 위치 미세 조정 */
+        .seconds-unit .card span {
+             margin-top: -0.7vw;
+        }
 
         @keyframes flipDown { 0% { opacity: 0.9; } 100% { opacity: 1; } }
         .animate { animation: flipDown 0.2s ease-out; }
