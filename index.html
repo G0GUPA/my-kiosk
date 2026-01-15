@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>70% Seconds Flip Clock</title>
+    <title>Centered Flip Clock</title>
     <style>
         :root {
             --bg-color: #000;
@@ -21,6 +21,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* 화면 중앙 정렬을 위해 justify-content 추가 */
+            justify-content: center; 
             height: 100vh;
             overflow: hidden;
         }
@@ -30,7 +32,8 @@
             display: flex; 
             flex-direction: column; 
             align-items: center;
-            padding-top: 5vh; 
+            /* ★ [수정포인트 1] 전체 높이 조절: 위로 더 올리고 싶으면 숫자를 줄이세요 */
+            margin-top: -5vh; 
             animation: drift 60s infinite alternate ease-in-out;
         }
 
@@ -40,7 +43,8 @@
             justify-content: center;
             align-items: center;
             width: 96vw;
-            margin-bottom: 2vh; 
+            /* ★ [수정포인트 2] 날짜와 시계 사이의 간격 */
+            margin-bottom: 3vh; 
         }
 
         #date {
@@ -63,18 +67,19 @@
         #desc { font-size: 1.1rem; color: var(--sub-text); }
 
         .flip-clock-wrapper {
-            margin-top: 6vh; 
+            /* 상단 여백을 줄여 시계를 날짜 쪽으로 밀착 */
+            margin-top: 0; 
         }
 
         .flip-clock {
             display: flex;
             gap: 3px;
-            align-items: flex-end; /* 하단 정렬 */
+            align-items: flex-end;
         }
 
         .flip-unit { display: flex; gap: 1px; }
 
-        /* 기본 카드 (시/분) */
+        /* 시/분 카드 (기존 크기 유지) */
         .card {
             position: relative;
             width: 15.5vw;
@@ -102,39 +107,28 @@
             background: rgba(0,0,0,0.8); z-index: 5;
         }
 
-        /* 메인 구분자 (:) */
         .separator { 
             font-size: 7vw; color: #222; font-weight: bold; padding: 0 1px; transform: scaleY(1.5); 
-            margin-bottom: 2vw;
+            margin-bottom: 2.5vw;
         }
 
-        /* ★분:초 사이 구분자 (70% 수준으로 조정) */
         .separator.small {
-             font-size: 5vw; 
-             color: #333;
-             margin-bottom: 2vw;
+             font-size: 5vw; color: #333; margin-bottom: 2.5vw;
         }
 
-        /* ★초 단위 카드 (기존 크기의 70%로 확대) */
+        /* 초 단위 카드 (기존 70% 크기 유지) */
         .seconds-unit .card {
-             width: 11vw;    /* 15.5vw * 0.7 */
-             height: 19.6vw; /* 28vw * 0.7 */
-             font-size: 16.8vw; /* 24vw * 0.7 */
-             line-height: 19.6vw;
-             border-radius: 5px;
+             width: 11vw; height: 19.6vw; font-size: 16.8vw; line-height: 19.6vw; border-radius: 5px;
         }
 
-        /* 작은 카드 내부 텍스트 위치 미세 조정 */
-        .seconds-unit .card span {
-             margin-top: -0.7vw;
-        }
+        .seconds-unit .card span { margin-top: -0.7vw; }
 
         @keyframes flipDown { 0% { opacity: 0.9; } 100% { opacity: 1; } }
         .animate { animation: flipDown 0.2s ease-out; }
 
         @keyframes drift {
             0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-10px, 10px); }
+            50% { transform: translate(-8px, 8px); }
         }
     </style>
 </head>
